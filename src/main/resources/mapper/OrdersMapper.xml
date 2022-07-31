@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cn.shangmihsangcheng.mapper.OrdersMapper">
+
+    <resultMap id="BaseResultMap" type="com.cn.shangmihsangcheng.domain.Orders">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="total" column="total" jdbcType="INTEGER"/>
+            <result property="amount" column="amount" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="paytype" column="paytype" jdbcType="TINYINT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="address" column="address" jdbcType="VARCHAR"/>
+            <result property="systime" column="systime" jdbcType="TIMESTAMP"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <association property="user" resultMap="UserResultMap" javaType="com.cn.shangmihsangcheng.domain.Users"></association>
+        <collection property="itemList" ofType="com.cn.shangmihsangcheng.domain.Items" javaType="List" resultMap="ItemResultMap"></collection>
+    </resultMap>
+
+    <resultMap id="UserResultMap" type="com.cn.shangmihsangcheng.domain.Users">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="ItemResultMap" type="com.cn.shangmihsangcheng.domain.Items">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="amount" column="amount" jdbcType="INTEGER"/>
+        <result property="orderId" column="order_id" jdbcType="INTEGER"/>
+        <result property="goodId" column="good_id" jdbcType="INTEGER"/>
+        <association property="good" resultMap="GoodsResultMap" javaType="com.cn.shangmihsangcheng.domain.Goods"></association>
+
+    </resultMap>
+
+    <resultMap id="GoodsResultMap" type="com.cn.shangmihsangcheng.domain.Goods">
+        <id property="id" column="id" jdbcType="OTHER"/>
+        <result property="cover" column="cover" jdbcType="VARCHAR"/>
+        <result property="gname" column="name" jdbcType="VARCHAR"/>
+        <result property="intro" column="intro" jdbcType="VARCHAR"/>
+        <result property="spec" column="spec" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="stock" column="stock" jdbcType="INTEGER"/>
+        <result property="sales" column="sales" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="typeId" column="type_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id,total,amount,
+        status,paytype,name,
+        phone,address,systime,
+        user_id
+    </sql>
+
+    <select id="selectOrderById" resultMap="BaseResultMap">
+        select o.id,o.systime,i.good_id,g.name,i.price,i.amount,o.total,o.status,o.paytype,g.cover
+        from  items i join orders o on o.id = i.order_id
+                      join goods g on g.id = i.good_id
+        where o.user_id=#{userId} order by o.systime DESC
+    </select>
+    
+    <select id="selectOrderByUserId" resultMap="BaseResultMap">
+        select g.id,g.cover,g.name,g.intro,i.price,i.amount,o.total
+        from orders o join items i on o.id = i.order_id join goods g on g.id = i.good_id
+        where o.user_id=#{userId}
+    </select>
+
+    <select id="selectNewOrderById" resultMap="BaseResultMap">
+        select o.id,o.systime,i.good_id,g.name,i.price,i.amount,o.total,o.status,o.paytype,g.cover
+        from  items i join orders o on o.id = i.order_id
+                      join goods g on g.id = i.good_id
+        where o.user_id=#{userId} order by o.systime DESC
+    </select>
+    
+    <select id="selectorderinfo" resultMap="BaseResultMap">
+        select o.id,o.total,g.id gid,g.name as gname,i.price,i.amount,o.phone,o.address,o.status,o.paytype,o.name,o.systime,u.username
+        from orders o join items i on o.id = i.order_id join goods g on i.good_id = g.id join users u on o.user_id = u.id
+        <where>
+            <if test="status!=null and status!=''">
+                o.status=#{status}
+            </if>
+       </where>
+        group by  o.id
+    </select>
+
+
+</mapper>

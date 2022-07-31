@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cn.shangmihsangcheng.mapper.CartsMapper">
+
+    <resultMap id="BaseResultMap" type="com.cn.shangmihsangcheng.domain.Carts">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="amount" column="amount" jdbcType="INTEGER"/>
+            <result property="goodId" column="good_id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <association property="good" resultMap="GoodsResultMaps" javaType="com.cn.shangmihsangcheng.domain.Goods"/>
+    </resultMap>
+
+    <resultMap id="GoodsResultMaps" type="com.cn.shangmihsangcheng.domain.Goods">
+        <id property="id" column="id" jdbcType="OTHER"/>
+        <result property="cover" column="cover" jdbcType="VARCHAR"/>
+        <result property="gname" column="name" jdbcType="VARCHAR"/>
+        <result property="intro" column="intro" jdbcType="VARCHAR"/>
+        <result property="spec" column="spec" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="stock" column="stock" jdbcType="INTEGER"/>
+        <result property="sales" column="sales" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="typeId" column="type_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,amount,good_id,
+        user_id
+    </sql>
+
+    <select id="selectCart" resultMap="BaseResultMap">
+        select g.name,c.good_id,g.content,g.intro,g.spec,g.price,c.id,c.amount,g.cover,(g.price*c.amount) as total,c.user_id
+        from goods g join carts c on g.id = c.good_id join users u on u.id = c.user_id where c.user_id=#{userId}
+    </select>
+
+    <select id="selectCartTotalPrice" resultType="java.lang.Integer">
+        select sum(c.amount * g.price) from carts c join goods g on g.id = c.good_id where c.user_id=#{userId}
+    </select>
+    <select id="selectAmountByUserId" resultMap="BaseResultMap">
+        select sum(amount)
+        from carts
+        where user_id = #{userId,jdbcType=NUMERIC}
+    </select>
+    <delete id="deleteById">
+        delete
+        from carts
+        where id = #{id,jdbcType=NUMERIC}
+    </delete>
+
+    <select id="selectCartByUserId" resultMap="BaseResultMap">
+        select c.good_id,g.cover,g.name,g.intro,g.spec,g.price,c.id,c.amount
+        from carts c join goods g on g.id = c.good_id
+        where c.user_id=#{userId}
+    </select>
+</mapper>

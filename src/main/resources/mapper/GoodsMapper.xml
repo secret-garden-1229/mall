@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cn.shangmihsangcheng.mapper.GoodsMapper">
+
+    <resultMap id="BaseResultMap" type="com.cn.shangmihsangcheng.domain.Goods">
+            <id property="id" column="id" jdbcType="OTHER"/>
+            <result property="cover" column="cover" jdbcType="VARCHAR"/>
+            <result property="gname" column="name" jdbcType="VARCHAR"/>
+            <result property="intro" column="intro" jdbcType="VARCHAR"/>
+            <result property="spec" column="spec" jdbcType="VARCHAR"/>
+            <result property="price" column="price" jdbcType="INTEGER"/>
+            <result property="stock" column="stock" jdbcType="INTEGER"/>
+            <result property="sales" column="sales" jdbcType="INTEGER"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="typeId" column="type_id" jdbcType="INTEGER"/>
+        <association property="type" javaType="com.cn.shangmihsangcheng.domain.Types" resultMap="TypesReslutMap"></association>
+        <association property="top" javaType="com.cn.shangmihsangcheng.domain.Tops" resultMap="TopReslutMap"></association>
+    </resultMap>
+
+    <resultMap id="TopReslutMap" type="com.cn.shangmihsangcheng.domain.Tops">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
+        <result property="goodId" column="good_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="TypesReslutMap" type="com.cn.shangmihsangcheng.domain.Types">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="tname" column="tname" jdbcType="VARCHAR"/>
+        <result property="num" column="num" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,cover,name,
+        intro,spec,price,
+        stock,sales,content,
+        type_id
+    </sql>
+
+    <select id="selectPopularGoods" resultMap="BaseResultMap">
+        select g.id,cover,name,intro,spec,price,stock,sales,content,type_id from goods g
+        join tops t on g.id = t.good_id where t.type=#{type}
+    </select>
+
+    <select id="goodsgroupBy" resultMap="BaseResultMap">
+        select g.id,g.cover,g.name,g.intro,g.spec,g.price,g.type_id
+        from types t join goods g on t.id = g.type_id group by g.id
+    </select>
+    
+    <select id="selectGoodsAndTypeById" resultMap="BaseResultMap">
+        select g.type_id,t.tname,g.name,g.cover ,g.intro,g.stock,g.id,g.price,g.content,g.spec
+        from goods g join types t on t.id = g.type_id where g.id=#{id}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from goods
+    </select>
+
+    <select id="selectGoodsAdmin" resultMap="BaseResultMap">
+        select g.id,g.cover,g.name ,g.intro,g.spec,g.price,t.tname,g.stock,g.sales,t2.good_id
+        from goods g join types t on g.type_id = t.id left join tops t2 on g.id = t2.good_id
+        <where>
+            <if test="type!='' and type!=null">
+                t2.type=#{type}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGoodsType" resultMap="BaseResultMap">
+        select g.type_id,t.id,t.tname from goods g left join types t on g.type_id = t.id
+    </select>
+
+</mapper>

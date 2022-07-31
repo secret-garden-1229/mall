@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cn.shangmihsangcheng.mapper.ItemsMapper">
+
+    <resultMap id="BaseResultMap" type="com.cn.shangmihsangcheng.domain.Items">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="price" column="price" jdbcType="INTEGER"/>
+            <result property="amount" column="amount" jdbcType="INTEGER"/>
+            <result property="orderId" column="order_id" jdbcType="INTEGER"/>
+            <result property="goodId" column="good_id" jdbcType="INTEGER"/>
+        <association property="good" resultMap="GoodsResultMap" javaType="com.cn.shangmihsangcheng.domain.Goods"></association>
+    </resultMap>
+
+
+    <resultMap id="GoodsResultMap" type="com.cn.shangmihsangcheng.domain.Goods">
+        <id property="id" column="id" jdbcType="OTHER"/>
+        <result property="cover" column="cover" jdbcType="VARCHAR"/>
+        <result property="gname" column="name" jdbcType="VARCHAR"/>
+        <result property="intro" column="intro" jdbcType="VARCHAR"/>
+        <result property="spec" column="spec" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="stock" column="stock" jdbcType="INTEGER"/>
+        <result property="sales" column="sales" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="typeId" column="type_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,price,amount,
+        order_id,good_id
+    </sql>
+
+    <select id="selectItemsById" resultMap="BaseResultMap">
+        select g.id,g.cover,g.name,g.intro,i.price,i.amount
+        from goods g join items i on g.id = i.good_id
+                     join orders o on o.id = i.order_id
+        where o.user_id=#{userId}
+    </select>
+
+</mapper>
